@@ -21,41 +21,31 @@ class CreateTransactionService {
     category,
   }: Request): Promise<Transaction> {
     // Check if this category already exists
+    const transactionsRepository = getCustomRepository(TransactionsRepository);
     const categoriesRepository = getRepository(Category);
 
-    const checkCategoryExists = await categoriesRepository.findOne({
+    const { total } = await transactionsRepository.getBalance();
+
+    if (type === 'outcome' && total < value) {
+      throw new AppError('Sorry, you have no money!');
+    }
+
+    let transactionCategory = await categoriesRepository.findOne({
       where: { title: category },
     });
 
     // Create new category (if necessary)
-    if (!checkCategoryExists) {
-      const newCategory = categoriesRepository.create({ title: category });
-
-      await categoriesRepository.save(newCategory);
-    }
-
-    const transactionCategory = await categoriesRepository.findOne({
-      where: { title: category },
-    });
-
     if (!transactionCategory) {
-      throw new AppError('Could not create new category.');
-    }
+      transactionCategory = categoriesRepository.create({ title: category });
 
-    // Create new Transaction
-    const transactionsRepository = getCustomRepository(TransactionsRepository);
-
-    const balance = await transactionsRepository.getBalance();
-
-    if (type === 'outcome' && balance.total < value) {
-      throw new AppError('Sorry, you have no money!');
+      await categoriesRepository.save(transactionCategory);
     }
 
     const transaction = transactionsRepository.create({
       title,
       value,
       type,
-      category_id: transactionCategory.id,
+      category: transactionCategory,
     });
 
     await transactionsRepository.save(transaction);

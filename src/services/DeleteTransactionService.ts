@@ -12,11 +12,13 @@ class DeleteTransactionService {
   public async execute({ id }: Request): Promise<void> {
     const transactionsRepository = getCustomRepository(TransactionsRepository);
 
-    const deleteTransaction = await transactionsRepository.delete(id);
+    const transaction = await transactionsRepository.findOne(id);
 
-    if (!deleteTransaction) {
-      throw new AppError('Could not delete the transaction.');
+    if (!transaction) {
+      throw new AppError('Transaction does not exits.');
     }
+
+    await transactionsRepository.remove(transaction);
   }
 }
 

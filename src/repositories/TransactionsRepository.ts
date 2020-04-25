@@ -16,17 +16,19 @@ class TransactionsRepository extends Repository<Transaction> {
 
     const { income, outcome } = transactions.reduce(
       (accumulator: Balance, transaction: Transaction) => {
-        // If 'income' or 'outcome'
-        if (transaction.type === 'income') {
-          accumulator.income += transaction.value;
-        } else if (transaction.type === 'outcome') {
-          accumulator.outcome += transaction.value;
+        switch (transaction.type) {
+          case 'income':
+            accumulator.income += transaction.value;
+            break;
+
+          case 'outcome':
+            accumulator.outcome += transaction.value;
+            break;
+
+          default:
+            break;
         }
 
-        // // Refresh total
-        // accumulator.total = accumulator.income - accumulator.outcome;
-
-        // Return the accumulator: Transaction
         return accumulator;
       },
       // Initial condition
@@ -44,8 +46,6 @@ class TransactionsRepository extends Repository<Transaction> {
       outcome,
       total,
     };
-    // // Return totalBalance
-    // return totalBalance;
   }
 }
 
