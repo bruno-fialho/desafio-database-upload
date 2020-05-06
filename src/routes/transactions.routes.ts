@@ -18,14 +18,7 @@ transactionsRouter.get('/', async (request, response) => {
   const transactionsRepository = getCustomRepository(TransactionsRepository);
 
   const transactions = await transactionsRepository.find({
-    select: ['id', 'title', 'value', 'type'],
     relations: ['category'],
-  });
-
-  transactions.map(transaction => {
-    delete transaction.category.created_at;
-    delete transaction.category.updated_at;
-    return transaction;
   });
 
   const balance = await transactionsRepository.getBalance();
