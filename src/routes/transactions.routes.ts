@@ -7,6 +7,8 @@ import CreateTransactionService from '../services/CreateTransactionService';
 import DeleteTransactionService from '../services/DeleteTransactionService';
 import ImportTransactionsService from '../services/ImportTransactionsService';
 
+import TransactionMap from '../mappers/TransactionMap';
+
 import uploadConfig from '../config/upload';
 
 const upload = multer(uploadConfig);
@@ -19,6 +21,15 @@ transactionsRouter.get('/', async (request, response) => {
 
   const transactions = await transactionsRepository.find({
     relations: ['category'],
+    select: [
+      'id',
+      'title',
+      'value',
+      'type',
+      'category',
+      'created_at',
+      'updated_at',
+    ],
   });
 
   const balance = await transactionsRepository.getBalance();
@@ -44,7 +55,9 @@ transactionsRouter.post('/', async (request, response) => {
     category,
   });
 
-  return response.json(transaction);
+  const mappedTransaction = TransactionMap.toDTO(transaction);
+
+  return response.json(mappedTransaction);
 });
 
 transactionsRouter.delete('/:id', async (request, response) => {
@@ -66,7 +79,11 @@ transactionsRouter.post(
 
     const transactions = await importTransactions.execute(request.file.path);
 
-    return response.json(transactions);
+    const mappedTransactions = transactions.map(transaction =>
+      TransactionMap.toDTO(transaction),
+    );
+
+    return response.json(mappedTransactions);
   },
 );
 
