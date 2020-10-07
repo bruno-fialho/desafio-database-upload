@@ -170,7 +170,7 @@ The following is a list of installed packages:
 - [cors](https://github.com/expressjs/cors#readme)
 
 
-	Opcional
+	Optional
 - [eslint](https://eslint.org/)
 - [prettier](https://prettier.io/)
 - [eslint-import-resolver-typescript](https://github.com/alexgorbatchev/eslint-import-resolver-typescript#readme)
